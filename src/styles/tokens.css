@@ -1,0 +1,77 @@
+/* Design tokens — see docs/DESIGN.md for the rationale. */
+:root {
+  /* room & surfaces */
+  --room: #0b1411;
+  --room-2: #101c18;
+  --panel: #111d19;
+  --panel-2: #172622;
+  --hairline: rgba(201, 165, 92, 0.16);
+  --hairline-strong: rgba(201, 165, 92, 0.32);
+
+  /* table */
+  --felt-hi: #1f7352;
+  --felt: #145a41;
+  --felt-lo: #0a3125;
+  --rail-hi: #5a3a26;
+  --rail: #3a2418;
+  --rail-lo: #1f130c;
+  --brass: #b8955a;
+
+  /* accents */
+  --gold: #c9a55c;
+  --gold-bright: #e2c27e;
+  --gold-ink: #1d160a;
+  --ivory: #f3ecdd;
+  --ivory-2: #e6dcc6;
+  --sage: #8db19a;
+  --sage-dim: #5d806b;
+  --claret: #b0424a;
+  --text: #e9e3d4;
+  --text-2: #a9b3ab;
+  --text-3: #76837b;
+
+  /* cards */
+  --card-face: #f7f1e3;
+  --card-edge: #d8ccb0;
+  --card-red: #b0282b;
+  --card-black: #1a1a17;
+  --card-back: #123d2e;
+
+  /* grades */
+  --solid: #8db19a;
+  --okay: #d8b46a;
+  --costly: #d46a63;
+
+  /* type */
+  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
+  --font-ui: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-md: 0.9375rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2.25rem;
+
+  /* space & shape */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --r-sm: 4px;
+  --r-md: 8px;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 140ms;
+  --t-med: 280ms;
+  --t-slow: 520ms;
+
+  --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.35), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 2px 2px rgba(0, 0, 0, 0.3), 0 10px 24px rgba(0, 0, 0, 0.45);
+
+  --topbar-h: 52px;
+  --coach-w: 340px;
+  color-scheme: dark;
+}
