@@ -72,8 +72,8 @@ function GameScreen({ lesson, onLessons, onPick }: { lesson: Lesson; onLessons: 
       <header className="topbar">
         <div className="brand"><IconSpade /> <span>Kicker</span></div>
         <nav className="topbar__nav">
-          <button className="btn btn--ghost btn--sm" onClick={onLessons}><IconLessons /> Lessons</button>
-          <button className="btn btn--ghost btn--sm" onClick={() => setReplayId(null)}><IconHistory /> Hand history</button>
+          <button className="btn btn--ghost btn--sm" onClick={onLessons} aria-label="Lessons"><IconLessons /> <span className="btn__text">Lessons</span></button>
+          <button className="btn btn--ghost btn--sm" onClick={() => setReplayId(null)} aria-label="Hand history"><IconHistory /> <span className="btn__text">Hand history</span></button>
         </nav>
       </header>
 

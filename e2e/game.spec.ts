@@ -71,5 +71,9 @@ test('phone layout has no horizontal scroll and keeps actions reachable', async 
   await expect(page.getByRole('button', { name: /^Fold|^Check/ }).first()).toBeVisible({ timeout: 15_000 });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+  // smallest common phones (320px) must not overflow either
+  await page.setViewportSize({ width: 320, height: 640 });
+  const narrow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(narrow).toBeLessThanOrEqual(0);
   await page.screenshot({ path: 'test-results/phone.png', fullPage: true });
 });
