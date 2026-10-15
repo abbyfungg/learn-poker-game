@@ -35,6 +35,7 @@ Every rule above has a test in `src/engine/*.test.ts`. When you touch rules, add
 - The player always decides. Assistance is optional and escalates only when asked: **Nudge** (a question to consider) → **Hint** (the relevant facts and numbers) → **Show me** (a suggested action with the reasoning, and the button highlighted).
 - Grade the *decision* on the information available at the time (hero's cards, board, pot, price), never the outcome. A good fold that would have won and a bad call that got lucky are both called what they are.
 - Be honest about uncertainty: equity numbers are estimates against assumed ranges; say so. Use "usually", "a reasonable", not "always correct".
+- Never leave the player guessing what happened: the play-by-play (`coach/narrate.ts`) explains every action, and the hand badge and Hand guide say how good their cards are. Any new poker term in UI text must have a `coach/glossary.ts` entry so it gets a hover explanation; render coach text through `RichText`.
 - Adapt: concepts with high mastery stop getting proactive tips; weak concepts are revisited. Plain words first; introduce a term (e.g. "outs") only with the situation that defines it.
 
 ## AI opponents

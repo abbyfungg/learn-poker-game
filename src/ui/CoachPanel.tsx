@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Advice, Grade } from '../coach/advisor';
 import { CoachLevel, Lesson } from '../coach/lessons';
+import { Narration } from '../coach/narrate';
 import { Tip } from '../coach/triggers';
 import { Feedback } from '../game/useGame';
 import { IconBulb, IconChevron } from './Icons';
+import { RichText } from './Term';
 
 interface Props {
   lesson: Lesson;
@@ -21,6 +23,8 @@ interface Props {
   notice: string | null;
   intro: boolean;
   onDismissIntro: () => void;
+  narration: Narration;
+  onOpenGuide: () => void;
 }
 
 const GRADE_LABEL: Record<Grade, string> = { solid: 'Solid', okay: 'Reasonable', costly: 'Costly' };
@@ -30,9 +34,8 @@ const LEVELS: { id: CoachLevel; label: string }[] = [
 
 export function CoachPanel(p: Props) {
   const [open, setOpen] = useState(true);
-  const [showNote, setShowNote] = useState(false);
+  const [showNote, setShowNote] = useState(true);
   const bodyRef = useRef<HTMLDivElement>(null);
-  useEffect(() => setShowNote(false), [p.feedback?.id]);
   // keep the newest message in view when content changes
   useEffect(() => { bodyRef.current?.scrollTo({ top: 0 }); }, [p.tip?.id, p.resultLines.length]);
 
@@ -57,9 +60,21 @@ export function CoachPanel(p: Props) {
       <div className="coach__body" ref={bodyRef}>
         {p.notice && <p className="coach__notice">{p.notice}</p>}
 
+        {p.coachLevel !== 'off' && (
+          <section className="playbyplay" aria-live="polite" aria-label="What's happening">
+            <p className="playbyplay__street"><RichText text={p.narration.street} /></p>
+            {p.narration.lines.length > 0 && (
+              <ul className="playbyplay__lines">
+                {p.narration.lines.map((l, i) => <li key={`${i}-${l}`}><RichText text={l} /></li>)}
+              </ul>
+            )}
+            {p.narration.prompt && <p className="playbyplay__prompt"><RichText text={p.narration.prompt} /></p>}
+          </section>
+        )}
+
         {p.intro && (
           <section className="note note--intro">
-            <p>{p.lesson.intro}</p>
+            <p><RichText text={p.lesson.intro} /></p>
             <button className="linkbtn" onClick={p.onDismissIntro}>Let's play</button>
           </section>
         )}
@@ -67,7 +82,7 @@ export function CoachPanel(p: Props) {
         {p.tip && (
           <section className="note note--tip" key={p.tip.id} aria-live="polite">
             <h3>{p.tip.title}</h3>
-            <p>{p.tip.body}</p>
+            <p><RichText text={p.tip.body} /></p>
             <button className="linkbtn" onClick={p.onDismissTip}>Got it</button>
           </section>
         )}
@@ -75,7 +90,7 @@ export function CoachPanel(p: Props) {
         {p.resultLines.length > 0 && (
           <section className="note note--result" aria-live="polite">
             <h3>How the hand ended</h3>
-            {p.resultLines.map((l, i) => <p key={i}>{l}</p>)}
+            {p.resultLines.map((l, i) => <p key={i}><RichText text={l} /></p>)}
           </section>
         )}
 
@@ -88,7 +103,7 @@ export function CoachPanel(p: Props) {
                 {showNote ? 'Hide' : 'Why?'}
               </button>
             </div>
-            {showNote && <p>{p.feedback.note}</p>}
+            {showNote && <p><RichText text={p.feedback.note} /></p>}
           </section>
         )}
 
@@ -111,8 +126,11 @@ export function CoachPanel(p: Props) {
               </div>
             </div>
             {hints.slice(0, p.hintLevel).map((h, i) => (
-              <p key={i} className={`hints__text hints__text--${i}`}>{h}</p>
+              <p key={i} className={`hints__text hints__text--${i}`}><RichText text={h} /></p>
             ))}
+            <p className="hints__guide">
+              Not sure how good your cards are? <button className="linkbtn" onClick={p.onOpenGuide}>Open the hand guide</button>
+            </p>
           </section>
         )}
       </div>

@@ -24,6 +24,9 @@ Attrition risks and how they're handled:
 
 ## Teaching model
 
+- **Play-by-play** (`src/coach/narrate.ts`) is always on, except with the coach set to "Quiet". It explains the current street, the last few actions in plain words ("Pia raised to 60, making it more expensive to continue…"), and exactly what the player can do on their turn.
+- **Hand strength** (`src/coach/handStrength.ts`): the badge under your cards rates the hand from Weak to Very strong. The rating uses only your cards and the board. Tapping it opens the **Hand guide**, which has four tabs: My hand (reasons in plain words, a percentile before the flop, and a note about your seat), What beats what (the ranking ladder with your category highlighted), Starting hands (four questions plus tiers, with your tier highlighted) and Poker words.
+- **Jargon tooltips** (`src/coach/glossary.ts`, `ui/Term.tsx`): poker words in any coach text are underlined the first time they appear and explained on hover, focus or tap. Position tags on seats (BTN, SB…) work the same way.
 - **Teaching moments** (`src/coach/triggers.ts`) fire at the decision point where a concept becomes relevant. Intro tips show once ever. Repeat tips appear only while that concept is still being learned, or for weak spots when the coach is set to "Weak spots".
 - **Hint ladder** (Nudge → Hint → Show me) is opt-in. Each level unlocks the next. "Show me" marks the suggested button as "Coach's pick". Using hints reduces the mastery credit a little, but never blocks play.
 - **Grading** (`gradeDecision`) compares the action with advice computed from the player's own view at that moment. Close spots are graded leniently. Outcome never affects the grade.

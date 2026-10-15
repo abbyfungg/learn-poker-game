@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react';
-import { totalPot } from './engine/game';
+import { useEffect, useMemo, useState } from 'react';
+import { cardCode } from './engine/cards';
+import { positionOf, totalPot } from './engine/game';
+import { handStrength } from './coach/handStrength';
+import { narrate } from './coach/narrate';
 import { CoachLevel, LESSONS, Lesson } from './coach/lessons';
 import { loadProgress } from './coach/progress';
 import { HERO_SEAT, useGame } from './game/useGame';
 import { ActionBar } from './ui/ActionBar';
 import { CoachPanel } from './ui/CoachPanel';
 import { HandReplay } from './ui/HandReplay';
-import { IconHistory, IconLessons, IconSpade } from './ui/Icons';
+import { GuideTab, HandGuide } from './ui/HandGuide';
+import { IconGuide, IconHistory, IconLessons, IconSpade } from './ui/Icons';
 import { Lobby } from './ui/Lobby';
 import { SessionReview } from './ui/SessionReview';
 import { Table } from './ui/Table';
@@ -56,6 +60,29 @@ function GameScreen({ lesson, onLessons, onPick }: { lesson: Lesson; onLessons: 
   const spotlight = g.hintLevel >= 3 ? 'actions' : g.tip?.target;
   const waitingFor = game.toAct !== null && game.toAct !== HERO_SEAT ? game.players[game.toAct].name : undefined;
 
+  // how good is my hand right now? (only the player's own cards + the board)
+  const heroKey = hero.hole.map(cardCode).join(' ');
+  const opponentsIn = game.players.filter((p) => p.seat !== HERO_SEAT && !p.folded && !p.out).length;
+  const heroStrength = useMemo(
+    () => (hero.hole.length === 2 && !hero.folded
+      ? handStrength(hero.hole, game.board, Math.max(1, opponentsIn), positionOf(game, HERO_SEAT))
+      : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [heroKey, game.board.length, opponentsIn, hero.folded, game.handNumber],
+  );
+  const narration = useMemo(() => narrate(game, HERO_SEAT), [game]);
+  const [guideTab, setGuideTab] = useState<GuideTab | null>(null);
+  const openGuide = (tab: GuideTab = 'mine') => setGuideTab(tab);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== 'g' || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target instanceof HTMLInputElement) return;
+      setGuideTab((t) => (t ? null : 'mine'));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const goal = lesson.goal;
   const unit = goal.metric === 'hands' ? 'hands' : goal.metric === 'showdowns' ? 'showdowns seen' : 'decisions';
   const goalText = lesson.id === 'free-play'
@@ -72,6 +99,7 @@ function GameScreen({ lesson, onLessons, onPick }: { lesson: Lesson; onLessons: 
       <header className="topbar">
         <div className="brand"><IconSpade /> <span>Kicker</span></div>
         <nav className="topbar__nav">
+          <button className="btn btn--ghost btn--sm" onClick={() => openGuide()} aria-label="Hand guide"><IconGuide /> <span className="btn__text">Hand guide</span></button>
           <button className="btn btn--ghost btn--sm" onClick={onLessons} aria-label="Lessons"><IconLessons /> <span className="btn__text">Lessons</span></button>
           <button className="btn btn--ghost btn--sm" onClick={() => setReplayId(null)} aria-label="Hand history"><IconHistory /> <span className="btn__text">Hand history</span></button>
         </nav>
@@ -79,7 +107,7 @@ function GameScreen({ lesson, onLessons, onPick }: { lesson: Lesson; onLessons: 
 
       <main className="room__main">
         <section className="room__table" aria-label="Poker table">
-          <Table game={game} heroSeat={HERO_SEAT} bots={g.bots} sweeping={g.sweeping} />
+          <Table game={game} heroSeat={HERO_SEAT} bots={g.bots} sweeping={g.sweeping} heroStrength={heroStrength} onOpenGuide={() => openGuide()} />
           <ActionBar
             legal={g.heroView?.legal ?? null}
             pot={totalPot(game)}
@@ -111,9 +139,20 @@ function GameScreen({ lesson, onLessons, onPick }: { lesson: Lesson; onLessons: 
           notice={g.notice}
           intro={intro && game.handNumber <= 1}
           onDismissIntro={() => setIntro(false)}
+          narration={narration}
+          onOpenGuide={() => openGuide()}
         />
       </main>
 
+      {guideTab && (
+        <HandGuide
+          tab={guideTab}
+          onTab={setGuideTab}
+          strength={heroStrength}
+          heroCards={heroStrength ? heroKey : null}
+          onClose={() => setGuideTab(null)}
+        />
+      )}
       {replayId !== undefined && (
         <HandReplay hands={g.history} initialId={replayId ?? undefined} onClose={() => setReplayId(undefined)} />
       )}

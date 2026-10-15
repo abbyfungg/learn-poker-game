@@ -13,11 +13,14 @@ src/
   coach/
     advisor.ts     beginner-strategy advice + Nudge/Hint/Show me text; gradeDecision
     triggers.ts    teaching moments; end-of-hand explanation
+    narrate.ts     plain-English play-by-play of the current street
+    handStrength.ts  beginner hand rating (Weak → Very strong) with reasons
+    glossary.ts    poker-word definitions and the matcher that underlines them
     lessons.ts     lesson definitions and goals
     progress.ts    per-concept mastery (localStorage)
     history.ts     hand records for replay (localStorage)
   game/useGame.ts  the only bridge: drives bots and timing, calls the coach, records hands
-  ui/              presentational components (Card, Chips, Table, ActionBar, CoachPanel, Lobby, HandReplay, SessionReview)
+  ui/              presentational components (Card, Chips, Table, ActionBar, CoachPanel, Lobby, HandReplay, SessionReview, HandGuide, Term)
   styles/          tokens.css (design tokens) and app.css
 e2e/               Playwright browser tests
 ```

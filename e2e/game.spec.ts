@@ -12,9 +12,10 @@ async function startLesson(page: Page, title: string, seed = 7) {
 async function playUntil(page: Page, done: () => Promise<boolean>, maxActions = 120) {
   for (let i = 0; i < maxActions; i++) {
     if (await done()) return;
-    const next = page.getByRole('button', { name: /Deal next hand/ });
-    const check = page.getByRole('button', { name: /^Check/ });
-    const call = page.getByRole('button', { name: /^Call/ });
+    const bar = page.locator('.actionbar');
+    const next = bar.getByRole('button', { name: /Deal next hand/ });
+    const check = bar.getByRole('button', { name: /^Check/ });
+    const call = bar.getByRole('button', { name: /^Call/ });
     // whichever control appears first; if none appears within 8s the game is stuck
     await expect(next.or(check).or(call).first()).toBeVisible({ timeout: 8000 });
     if (await done()) return;
@@ -55,7 +56,7 @@ test('hints escalate from nudge to show me and mark the suggested action', async
 
 test('hand history replays a finished hand', async ({ page }) => {
   await startLesson(page, 'Your first hands', 3);
-  const next = page.getByRole('button', { name: /Deal next hand/ });
+  const next = page.locator('.actionbar').getByRole('button', { name: /Deal next hand/ });
   await playUntil(page, () => next.isVisible());
   await page.getByRole('button', { name: /Hand history/ }).click();
   const drawer = page.getByRole('dialog', { name: 'Hand history' });
@@ -68,7 +69,7 @@ test('hand history replays a finished hand', async ({ page }) => {
 test('phone layout has no horizontal scroll and keeps actions reachable', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await startLesson(page, 'Choosing starting hands', 5);
-  await expect(page.getByRole('button', { name: /^Fold|^Check/ }).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.actionbar').getByRole('button', { name: /^Fold|^Check/ }).first()).toBeVisible({ timeout: 15_000 });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
   // smallest common phones (320px) must not overflow either
@@ -76,4 +77,54 @@ test('phone layout has no horizontal scroll and keeps actions reachable', async 
   const narrow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(narrow).toBeLessThanOrEqual(0);
   await page.screenshot({ path: 'test-results/phone.png', fullPage: true });
+});
+
+test('hand badge opens the hand guide with ratings, rankings and words', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await startLesson(page, 'Your first hands', 8);
+  const badge = page.locator('.handbadge');
+  await expect(badge).toContainText(/Weak|Marginal|Decent|Strong|Very strong/);
+  await badge.click();
+  const guide = page.getByRole('dialog', { name: 'Hand guide' });
+  await expect(guide.locator('.guide__points li').first()).toBeVisible();
+  await expect(guide).toContainText(/Better than about \d+% of all possible starting hands/);
+  await page.screenshot({ path: 'test-results/guide-mine.png' });
+  await guide.getByRole('tab', { name: 'What beats what' }).click();
+  await expect(guide.locator('.ranklist li')).toHaveCount(9);
+  await page.screenshot({ path: 'test-results/guide-rankings.png' });
+  await guide.getByRole('tab', { name: 'Starting hands' }).click();
+  await expect(guide.locator('.tierlist li.is-current')).toHaveCount(1);
+  await page.screenshot({ path: 'test-results/guide-starting.png' });
+  await guide.getByRole('tab', { name: 'Poker words' }).click();
+  await expect(guide).toContainText('Kicker');
+  await page.keyboard.press('Escape');
+  await expect(guide).toBeHidden();
+  // the G shortcut toggles it too
+  await page.keyboard.press('g');
+  await expect(guide).toBeVisible();
+});
+
+test('jargon in coach notes explains itself on hover and tap', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await startLesson(page, 'Your first hands', 8);
+  const term = page.locator('.coach .term', { hasText: /^big blind$/i }).first();
+  await term.hover();
+  const tip = page.getByRole('tooltip');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText('forced full-size bet');
+  const box = await tip.boundingBox();
+  expect(box && box.width > 100 && box.y >= 0).toBeTruthy();
+  await page.screenshot({ path: 'test-results/tooltip.png' });
+  await page.mouse.move(5, 5);
+  await expect(tip).toBeHidden();
+  // position tags on the table explain themselves too
+  await page.locator('.seat__pos .term').first().hover();
+  await expect(page.getByRole('tooltip')).toBeVisible();
+});
+
+test('the coach narrates the hand as it happens', async ({ page }) => {
+  await startLesson(page, 'Your first hands', 8);
+  const pbp = page.getByLabel("What's happening");
+  await expect(pbp).toContainText('posted the small blind');
+  await expect(pbp).toContainText(/Your turn/);
 });

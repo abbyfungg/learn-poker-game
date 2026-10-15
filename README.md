@@ -16,7 +16,7 @@ npm run test:e2e     # browser tests (Playwright, uses your installed Google Chr
 
 **Play online:** https://abbyfungg.github.io/learn-poker-game/ — every push to `main` runs the tests, builds, and deploys to GitHub Pages (`.github/workflows/deploy.yml`). Check a production build locally with `npm run build && npm run preview`, then open http://localhost:4173/learn-poker-game/.
 
-Add `?seed=123` to the URL to get a reproducible deck order. Keyboard: **F** fold, **C** check/call, **R** bet/raise, **N** next hand. In a replay, ← and → step through the actions.
+Add `?seed=123` to the URL to get a reproducible deck order. Keyboard: **F** fold, **C** check/call, **R** bet/raise, **N** next hand, **G** hand guide. In a replay, ← and → step through the actions.
 
 Docs: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (code structure and rules decisions) · [docs/DESIGN.md](docs/DESIGN.md) (teaching model, loops, visual system).
 

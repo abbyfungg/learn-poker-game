@@ -29,3 +29,6 @@ export const IconPrev = (p: SVGProps<SVGSVGElement>) => (
 export const IconSpade = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base({ ...p, fill: 'currentColor', stroke: 'none' })}><path d="M12 2c-1.5 3-7 6.4-7 10.4C5 15 7 16.6 9.2 16.6c.9 0 1.7-.3 2.3-.8-.2 1.9-1 3.5-2.3 5.2h5.6c-1.3-1.7-2.1-3.3-2.3-5.2.6.5 1.4.8 2.3.8 2.2 0 4.2-1.6 4.2-4.2C19 8.4 13.5 5 12 2z" /></svg>
 );
+export const IconGuide = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.2-2.5 3.9M12 17h.01" /></svg>
+);

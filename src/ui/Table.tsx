@@ -2,14 +2,21 @@ import { CSSProperties } from 'react';
 import { describePartial, evaluateBest } from '../engine/evaluator';
 import { ActionRecord, GameState, POSITION_LABELS, Player, positionOf, totalPot } from '../engine/game';
 import { BotProfile, STYLE_LABELS } from '../ai/bot';
+import { HandStrength } from '../coach/handStrength';
 import { PlayingCard } from './Card';
 import { ChipStack, formatChips } from './Chips';
+import { StrengthMeter } from './HandGuide';
+import { Term } from './Term';
+
+const POSITION_TERMS: Record<string, string> = { BTN: 'button', SB: 'small-blind', BB: 'big-blind', UTG: 'utg', CO: 'cutoff', HJ: 'hijack', MP: 'position' };
 
 interface Props {
   game: GameState;
   heroSeat: number;
   bots: Record<number, BotProfile>;
   sweeping: boolean;
+  heroStrength: HandStrength | null;
+  onOpenGuide: () => void;
 }
 
 /** Seat anchor on the rail, as % of the table box. Seat 0 (you) sits at the bottom; others go clockwise. */
@@ -42,7 +49,7 @@ function actionLabel(r: ActionRecord): string {
 
 const AVATAR_TONES = ['#7a4e2d', '#2f5d62', '#6b3a4b', '#4a5a2a', '#3d4a6b', '#6b5a2e', '#5a3d6b', '#2e5a45'];
 
-export function Table({ game, heroSeat, bots, sweeping }: Props) {
+export function Table({ game, heroSeat, bots, sweeping, heroStrength, onOpenGuide }: Props) {
   const n = game.players.length;
   const result = game.result;
   const showdown = !!result && !result.uncontested;
@@ -152,7 +159,17 @@ export function Table({ game, heroSeat, bots, sweeping }: Props) {
             />
           ))}
         </div>
-        {heroHand && !hero.folded && <div className="hero-hand__name">{heroHand}</div>}
+        {heroHand && !hero.folded && (
+          <button className="handbadge" onClick={onOpenGuide} aria-label={`${heroHand}${heroStrength ? `, ${heroStrength.label}` : ''}. Open the hand guide`}>
+            <span className="handbadge__name">{heroHand}</span>
+            {heroStrength && (
+              <span className={`handbadge__level level--${heroStrength.level}`}>
+                <StrengthMeter level={heroStrength.level} /> {heroStrength.label}
+              </span>
+            )}
+            <span className="handbadge__q" aria-hidden>?</span>
+          </button>
+        )}
         {hero.folded && <div className="hero-hand__name is-muted">Folded</div>}
       </div>
     </div>
@@ -208,7 +225,11 @@ function Seat({ player: p, isHero, bot, tone, active, winner, reveal, last, posi
         <div className="seat__meta">
           <div className="seat__name">
             {p.name}
-            {position && <span className="seat__pos" title={POSITION_LABELS[position]}>{position}</span>}
+            {position && (
+              <span className="seat__pos">
+                <Term id={POSITION_TERMS[position]}><span aria-label={POSITION_LABELS[position]}>{position}</span></Term>
+              </span>
+            )}
           </div>
           <div className="seat__stack">{formatChips(p.stack)}</div>
         </div>
